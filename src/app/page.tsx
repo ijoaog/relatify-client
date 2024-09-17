@@ -2,9 +2,9 @@
 
 export default function Home() {
   return (
-    <div className="flex flex-col h-screen w-screen">
-        <div className="bg-black flex h-full w-full text-center justify-center items-center">
-            p
+    <div className="flex flex-col items-center justify-center min-h-screen py-2 bg-gray-600">
+        <div >
+            Inicio do Relatify por João Lopes
         </div>
     </div>
   );
