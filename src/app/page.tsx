@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import Loader from '@/components/custom/Loader';
+import { toast } from 'sonner';
 
 const LoginPage = () => {
     const { login } = useAuth();
@@ -18,8 +21,23 @@ const LoginPage = () => {
         try {
             await login(username, password); // Chama a função de login
         } catch (err) {
-            setError(String(err).replace(/^Error: /, ''));
-            console.error(err);
+            // Aqui, você deve verificar se 'err' é uma instância de Error
+            let errorMessage = 'Erro desconhecido';
+
+            if (err instanceof Error) {
+                errorMessage = err.message; // Captura a mensagem de erro
+            }
+
+            // Aqui chamamos o toast com a mensagem de erro
+            toast.error(`Erro no login:`, {
+                description: errorMessage,
+                duration: 5000,
+                position: 'bottom-right',
+                style: {
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                },
+            });
         } finally {
             setLoading(false);
         }
@@ -40,51 +58,28 @@ const LoginPage = () => {
                     </p>
                 </div>
                 <div className='rightBox flex h-[70%] w-full flex-col items-center justify-center gap-4 bg-gradient-to-br from-red-300 to-red-600 p-8 text-center shadow-lg md:h-full md:w-[35%]'>
-                    <h1 className='mb-4 text-2xl font-light'>Login</h1>
+                    <h1 className='mb-4 text-2xl font-light'>Entrar</h1>
                     {error && <p style={{ color: 'red' }}>{error}</p>}
-                    <input
+                    <Input
                         type='text'
                         placeholder='Username'
-                        className='mb-4 rounded border p-2 text-black'
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        onKeyDown={handleKeyDown} // Usando onKeyDown aqui
+                        onKeyDown={handleKeyDown}
                     />
-                    <input
+                    <Input
                         type='password'
-                        className='mb-4 rounded border p-2 text-black'
                         placeholder='Password'
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        onKeyDown={handleKeyDown} // E aqui também
+                        onKeyDown={handleKeyDown}
                     />
                     <Button
                         className='flex items-center justify-center'
                         onClick={handleLogin}
                         disabled={loading}
                     >
-                        {loading ? (
-                            <svg
-                                className='h-5 w-5 animate-spin'
-                                viewBox='0 0 24 24'
-                            >
-                                <circle
-                                    className='opacity-25'
-                                    cx='12'
-                                    cy='12'
-                                    r='10'
-                                    stroke='currentColor'
-                                    strokeWidth='4'
-                                ></circle>
-                                <path
-                                    className='opacity-75'
-                                    fill='currentColor'
-                                    d='M4 12a8 8 0 018-8v8l4.88 4.88A8.002 8.002 0 014 12z'
-                                ></path>
-                            </svg>
-                        ) : (
-                            'Login'
-                        )}
+                        {loading ? <Loader height={20} width={20} /> : 'Entrar'}
                     </Button>
                 </div>
             </div>
