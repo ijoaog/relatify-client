@@ -1,43 +1,40 @@
 "use client"; // Necessário para usar hooks no Next.js
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation'; // Importando o hook useRouter
+import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import { Button } from "@/components/ui/button";
 
 const LoginPage = () => {
-  const { login, user } = useAuth(); // Captura o login e o usuário do contexto
-  const router = useRouter(); // Criando uma instância do router
+  const { login, user } = useAuth();
+  const router = useRouter();
 
-  // Estados para controlar o input do formulário
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null); // Para capturar erros de login
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true); // Ativa o loading quando a função começa
     try {
       await login(username, password);
-      const userRole = user?.role; // Obtendo o role do payload
-
-      // Redirecionar baseado no payload.role
+      const userRole = user?.role;
       switch (userRole) {
         case 'admin':
-          router.push('/admin'); // Redireciona para admin
+          router.push('/admin');
           break;
         case 'user':
-          router.push('/home'); // Redireciona para home
+          router.push('/home');
           break;
         default:
-          router.push('/login'); // Caso não tenha role, redireciona para login
+          router.push('/login');
           break;
       }
     } catch (err) {
-      setError('Usuário ou senha incorretos.'); // Define a mensagem de erro
+      setError('Usuário ou senha incorretos.');
       console.error(err);
     } finally {
-      setLoading(false); // Desativa o loading quando a função termina
+      setLoading(false);
     }
   };
 

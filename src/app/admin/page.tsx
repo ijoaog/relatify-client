@@ -1,4 +1,4 @@
-'use client'; // Marque esta página como um componente do lado do cliente
+'use client';
 import { useAuth } from '../../context/AuthContext';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,7 +9,7 @@ const AdminPage = () => {
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
-      router.push('/'); // Redireciona se não for admin
+      router.push('/');
     }
   }, [user, router]);
 
