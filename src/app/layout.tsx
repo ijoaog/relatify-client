@@ -14,9 +14,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-            <head>
-        <link rel="icon" href="C:\Users\joao-lopes\Documents\Desenvolvimento\portifolio\relatify-client\src\public\favicon.png" /> {/* Adicione esta linha */}
-      </head>
       <body className={`antialiased`}>
         <AuthProvider>
           {children}
