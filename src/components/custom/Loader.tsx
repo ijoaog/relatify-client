@@ -9,7 +9,7 @@ interface ImageComponentProps {
 const ImageComponent: React.FC<ImageComponentProps> = ({ width = 200, height = 200 }) => { // Define valores padrão
     return (
         <img 
-            src={"/statics/loader2.gif"}
+            src={"/statics/mainLoader.gif"}
             alt={"loaderGif"} 
             width={width}
             height={height} 
