@@ -1,5 +1,5 @@
-'use client'; // Necessário para usar hooks no Next.js
-import { User, AuthContextType } from '../context/authTypes'; // Importando as interfaces
+'use client';
+import { User, AuthContextType } from '../context/authTypes';
 import React, {
     createContext,
     useContext,
@@ -7,7 +7,7 @@ import React, {
     useEffect,
     ReactNode,
 } from 'react';
-import { useRouter } from 'next/navigation'; // Importando useRouter
+import { useRouter } from 'next/navigation';
 import { decodeToken } from '../utils/jwtUtils';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -15,48 +15,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
-    const [user, setUser] = useState<User | null>(null); // Inicializa o estado do usuário como null
-    const [loading, setLoading] = useState(true); // Estado de carregamento
-    const router = useRouter(); // Inicializa o router
-    // Verificação de autenticação em cada renderização
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
+
     useEffect(() => {
         if (!loading && !user) {
-            router.push('/'); // Redireciona para a página inicial se não estiver logado
+            router.push('/');
         }
-    }, [loading, user, router]); // Dependências incluem loading e user
-    // Função para carregar o usuário a partir do token armazenado
+    }, [loading, user, router]);
+
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (token) {
             decodeToken(token)
                 .then((decoded) => {
                     if (decoded) {
-                        const role = decoded.role as User['role']; // Assegura que a role é um tipo válido
+                        const role = decoded.role as User['role'];
                         // Verifica se a role é válida
                         if (role === 'admin' || role === 'user') {
                             const loggedInUser: User = {
                                 token,
                                 username: decoded.username,
                                 role,
-                                userlogin: decoded.userlogin, // Adicione isso se necessário
-                                email: decoded.email, // Adicione isso se necessário
+                                userlogin: decoded.userlogin,
+                                email: decoded.email,
                             };
                             setUser(loggedInUser);
-                            router.push('/home'); // Redireciona para a página /home se o token for válido
+                            router.push('/home');
                         } else {
                             console.error('Role inválida:', role);
                         }
                     } else {
                         console.error('Failed to decode token');
                     }
-                    setLoading(false); // Define o carregamento como falso após a verificação do token
+                    setLoading(false);
                 })
-                .catch((error) => {
-                    console.error('Error decoding token:', error);
-                    setLoading(false); // Define o carregamento como falso mesmo em caso de erro
+                .catch((error: unknown) => {
+                    if (error instanceof Error) {
+                        console.error('Error decoding token:', error.message);
+                    } else {
+                        console.error(
+                            'Unknown error occurred during token decoding'
+                        );
+                    }
+                    setLoading(false);
                 });
         } else {
-            setLoading(false); // Define o carregamento como falso se não houver token
+            setLoading(false);
         }
     }, []);
 
@@ -73,34 +79,36 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
             const data = await response.json();
 
             if (!response.ok) {
-                // Lança um erro se a resposta não for ok, incluindo a mensagem do servidor
                 throw new Error(data.message || 'Usuário ou senha inválidos.');
             }
 
-            // Armazena o token no localStorage
             localStorage.setItem('token', data.access_token);
             const decoded = await decodeToken(data.access_token);
 
             if (decoded) {
-                const role = decoded.role as User['role']; // Assegura que a role é um tipo válido
+                const role = decoded.role as User['role'];
                 if (role) {
                     const loggedInUser: User = {
                         token: data.access_token,
                         username: decoded.username,
                         role,
-                        userlogin: decoded.userlogin, // Adicione isso se necessário
-                        email: decoded.email, // Adicione isso se necessário
+                        userlogin: decoded.userlogin,
+                        email: decoded.email,
                     };
                     setUser(loggedInUser);
-                    router.push('/home'); // Redireciona para a página /home
+                    router.push('/home');
                 } else {
                     console.error('Role inválida:', role);
                 }
             } else {
                 console.error('Falha ao decodificar o token');
             }
-        } catch (error: any) {
-            // Aqui, a mensagem de erro já será mais específica
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('Login error:', error.message);
+            } else {
+                console.error('Unknown error occurred during login');
+            }
             throw new Error('Problema de conexão');
         }
     };
@@ -108,7 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const logout = () => {
         localStorage.removeItem('token');
         setUser(null);
-        router.push('/'); // Redireciona para a página inicial após logout
+        router.push('/');
     };
 
     return (
