@@ -63,14 +63,16 @@ const LoginPage = () => {
             value={password} 
             onChange={(e) => setPassword(e.target.value)} 
           />
-          <Button className="flex justify-center items-center text-center" onClick={handleLogin} disabled={loading}>
+            <Button className="flex justify-center items-center" onClick={handleLogin} disabled={loading}>
             {loading ? (
-              <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8l4.88 4.88A8.002 8.002 0 014 12z"></path>
-              </svg>
-            ) : 'Login'}
-          </Button>
+                </svg>
+            ) : (
+                'Login'
+            )}
+            </Button>
         </div>
       </div>
     </div>
