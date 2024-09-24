@@ -62,14 +62,14 @@ const LoginPage = () => {
                     {error && <p style={{ color: 'red' }}>{error}</p>}
                     <Input
                         type='text'
-                        placeholder='Username'
+                        placeholder='Usuário'
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         onKeyDown={handleKeyDown}
                     />
                     <Input
                         type='password'
-                        placeholder='Password'
+                        placeholder='Senha'
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onKeyDown={handleKeyDown}
