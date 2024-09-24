@@ -1,32 +1,43 @@
 'use client';
 import { useAuth } from '../../context/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import  Loader from '../../components/custom/Loader';
+import Loader from '../../components/custom/Loader';
 
 const AdminPage = () => {
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth(); // Obtém o usuário e o estado de carregamento do contexto
     const router = useRouter();
-    const [loading, setLoading] = useState(true); // Estado de carregamento
 
     useEffect(() => {
-        if (!user) {
-            router.push('/home');
-        } else if (user.role !== 'admin') {
-            router.push('/home');
-        } else {
-            setLoading(false); // Define loading como false se o usuário for admin
+        // Se a autenticação estiver carregando, não faz nada
+        if (authLoading) {
+            return; // Aguarda o carregamento
         }
-    }, [user, router]);
 
-    if (loading) {
+        console.log('User:', user);
+
+        // Verifica se o usuário está logado
+        if (!user) {
+            console.log('User not logged in. Redirecting to /home...');
+            router.push('/home'); // Redireciona se não houver usuário
+        } else if (user.role !== 'admin') {
+            console.log('User does not have admin role. Redirecting to /home...');
+            router.push('/home'); // Redireciona se a role não for admin
+        }else if (user.role === 'admin') {
+          router.push('/admin'); // Redireciona se não houver usuário
+        }
+    }, [user, authLoading, router]);
+
+    // Mostra o loader enquanto a autenticação está sendo processada
+    if (authLoading) {
         return (
-            <div className='mainContainer flex justify-center items-center h-screen'>
-                <Loader/>
+            <div className='mainContainer flex h-screen items-center justify-center'>
+                <Loader />
             </div>
         );
     }
 
+    // Se chegou aqui, significa que o usuário está autenticado e é admin
     return (
         <div>
             <h1>Admin Page</h1>

@@ -4,6 +4,7 @@ import './globals.css';
 
 import { AuthProvider } from '../context/AuthContext';
 import Header from '../components/custom/Header';
+import { Toaster } from '@/components/ui/sonner';
 export const metadata: Metadata = {
     title: 'Relatify',
     description: 'Sistema de Relatórios.',
@@ -20,6 +21,7 @@ export default function RootLayout({
                 <AuthProvider>
                     <Header />
                     {children}
+                    <Toaster />
                 </AuthProvider>
             </body>
         </html>

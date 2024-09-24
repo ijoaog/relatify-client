@@ -32,7 +32,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                 .then((decoded) => {
                     if (decoded) {
                         const role = decoded.role as User['role']; // Assegura que a role é um tipo válido
-
                         // Verifica se a role é válida
                         if (role === 'admin' || role === 'user') {
                             const loggedInUser: User = {
@@ -43,6 +42,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                                 email: decoded.email, // Adicione isso se necessário
                             };
                             setUser(loggedInUser);
+                            router.push('/home'); // Redireciona para a página /home se o token for válido
                         } else {
                             console.error('Role inválida:', role);
                         }
@@ -61,40 +61,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }, []);
 
     const login = async (username: string, password: string) => {
-        const response = await fetch('http://localhost:3000/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ username, password }),
-        });
+        try {
+            const response = await fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ username, password }),
+            });
 
-        const data = await response.json();
-        if (!response.ok) {
-            // let errorData = await response.json();
-            throw new Error(data.message || 'Login failed');
-        }
+            const data = await response.json();
 
-        localStorage.setItem('token', data.access_token);
-        const decoded = await decodeToken(data.access_token);
-
-        if (decoded) {
-            const role = decoded.role as User['role']; // Assegura que a role é um tipo válido
-            if (role) {
-                const loggedInUser: User = {
-                    token: data.access_token,
-                    username: decoded.username,
-                    role,
-                    userlogin: decoded.userlogin, // Adicione isso se necessário
-                    email: decoded.email, // Adicione isso se necessário
-                };
-                setUser(loggedInUser);
-                router.push('/home'); // Redireciona para a página /home
-            } else {
-                console.error('Role inválida:', role);
+            if (!response.ok) {
+                // Lança um erro se a resposta não for ok, incluindo a mensagem do servidor
+                throw new Error(data.message || 'Usuário ou senha inválidos.');
             }
-        } else {
-            console.error('Failed to decode token');
+
+            // Armazena o token no localStorage
+            localStorage.setItem('token', data.access_token);
+            const decoded = await decodeToken(data.access_token);
+
+            if (decoded) {
+                const role = decoded.role as User['role']; // Assegura que a role é um tipo válido
+                if (role) {
+                    const loggedInUser: User = {
+                        token: data.access_token,
+                        username: decoded.username,
+                        role,
+                        userlogin: decoded.userlogin, // Adicione isso se necessário
+                        email: decoded.email, // Adicione isso se necessário
+                    };
+                    setUser(loggedInUser);
+                    router.push('/home'); // Redireciona para a página /home
+                } else {
+                    console.error('Role inválida:', role);
+                }
+            } else {
+                console.error('Falha ao decodificar o token');
+            }
+        } catch (error: any) {
+            // Aqui, a mensagem de erro já será mais específica
+            throw new Error('Problema de conexão');
         }
     };
 
