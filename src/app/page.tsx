@@ -31,7 +31,7 @@ const LoginPage = () => {
           break;
       }
     } catch (err) {
-      setError('Usuário ou senha incorretos.');
+      setError('Erro no servidor. Tente novamente mais tarde.');
       console.error(err);
     } finally {
       setLoading(false);
