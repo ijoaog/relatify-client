@@ -20,19 +20,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const router = useRouter();
 
     useEffect(() => {
-        if (!loading && !user) {
-            router.push('/');
-        }
-    }, [loading, user, router]);
-
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            decodeToken(token)
-                .then((decoded) => {
+        const checkToken = async () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    const decoded = await decodeToken(token);
                     if (decoded) {
                         const role = decoded.role as User['role'];
-                        // Verifica se a role é válida
                         if (role === 'admin' || role === 'user') {
                             const loggedInUser: User = {
                                 token,
@@ -42,30 +36,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                                 email: decoded.email,
                             };
                             setUser(loggedInUser);
-                            router.push('/home');
+                            if (!user) {
+                                router.push('/home');
+                            }
                         } else {
                             console.error('Role inválida:', role);
                         }
                     } else {
                         console.error('Failed to decode token');
                     }
-                    setLoading(false);
-                })
-                .catch((error: unknown) => {
+                } catch (error: unknown) {
                     if (error instanceof Error) {
                         console.error('Error decoding token:', error.message);
                     } else {
-                        console.error(
-                            'Unknown error occurred during token decoding'
-                        );
+                        console.error('Unknown error occurred during token decoding');
                     }
+                } finally {
                     setLoading(false);
-                });
-        } else {
-            setLoading(false);
-        }
-    }, []);
+                }
+            } else {
+                setLoading(false);
+            }
+        };
 
+        checkToken();
+    }, [router, user]);
     const login = async (username: string, password: string) => {
         try {
             const response = await fetch('http://localhost:3000/auth/login', {
@@ -76,18 +71,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                 body: JSON.stringify({ username, password }),
             });
 
-            const data = await response.json();
-
             if (!response.ok) {
-                throw new Error(data.message || 'Usuário ou senha inválidos.');
+                const errorData = await response.json();
+                throw new Error(
+                    errorData.message || 'Usuário ou senha inválidos.'
+                );
             }
 
+            const data = await response.json();
             localStorage.setItem('token', data.access_token);
+
             const decoded = await decodeToken(data.access_token);
 
             if (decoded) {
                 const role = decoded.role as User['role'];
-                if (role) {
+                if (role === 'admin' || role === 'user') {
                     const loggedInUser: User = {
                         token: data.access_token,
                         username: decoded.username,
@@ -104,6 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                 console.error('Falha ao decodificar o token');
             }
         } catch (error: unknown) {
+            setUser(null); // Limpar o estado do usuário em caso de erro
             if (error instanceof Error) {
                 console.error('Login error:', error.message);
             } else {
@@ -126,7 +125,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     );
 };
 
-// Hook para usar o AuthContext
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {

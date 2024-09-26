@@ -17,18 +17,16 @@ const LoginPage = () => {
 
     const handleLogin = async () => {
         setLoading(true);
-        setError(null); // Reseta o erro ao tentar logar
+        setError(null);
         try {
-            await login(username, password); // Chama a função de login
+            await login(username, password);
         } catch (err) {
-            // Aqui, você deve verificar se 'err' é uma instância de Error
             let errorMessage = 'Erro desconhecido';
 
             if (err instanceof Error) {
-                errorMessage = err.message; // Captura a mensagem de erro
+                errorMessage = err.message;
             }
 
-            // Aqui chamamos o toast com a mensagem de erro
             toast.error(`Erro no login:`, {
                 description: errorMessage,
                 duration: 5000,

@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation'; // Importa o useRouter do next/navigation
 import { useAuth } from '../../context/AuthContext'; // Importa o contexto de autenticação
 import Loader from '../../components/custom/Loader'; // Importa o componente Loader
+import { ExampleChart } from '../../components/charts'; // Importa o componente ExampleChart
 
 const HomePage = () => {
     const { user, loading } = useAuth(); // Obtém o estado do usuário e o estado de carregamento do contexto de autenticação
@@ -23,8 +24,9 @@ const HomePage = () => {
     }
 
     return (
-        <div>
+        <div className=''>
             <h1>Home</h1>
+            <ExampleChart />
             <p>Bem-vindo ao nosso site!</p>
         </div>
     );
