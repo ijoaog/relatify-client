@@ -5,13 +5,15 @@ interface DecodedToken {
     exp: number;
     iat: number;
     sub: string;
+    name: string;
     username: string;
-    userlogin: string;
     email: string;
     role: string; 
 }
 
 export const decodeToken = (token: string): Promise<DecodedToken | null> => {
+    console.log('Token recebido:', token);
+    
     return new Promise((resolve) => {
         if (typeof token !== 'string' || token.trim() === '') {
             console.error('Token inválido: deve ser uma string não vazia.');
