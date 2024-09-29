@@ -20,18 +20,18 @@ export default function RootLayout({
 }>) {
     return (
         <html lang='en'>
-            <body className='antialiased'>
+            <body className='h-screen antialiased'>
                 <AuthProvider>
-                        <div className='flex h-screen flex-col'>
-                            <Header />
-                            <div className='flex flex-1'>
-                                <Sidebar />
-                                <main className='flex flex-1 items-center justify-center overflow-y-auto p-4 text-center'>
-                                    {children}
-                                </main>
-                            </div>
+                    <div className='flex h-full flex-col'>
+                        <Header />
+                        <div className='flex flex-1 overflow-hidden'>
+                            <Sidebar />
+                            <main className='flex flex-1 flex-col overflow-y-auto p-4'>
+                                {children}
+                            </main>
                         </div>
-                        <Toaster />
+                    </div>
+                    <Toaster />
                 </AuthProvider>
             </body>
         </html>

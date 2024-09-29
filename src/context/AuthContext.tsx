@@ -1,3 +1,5 @@
+// src/context/AuthContext.tsx
+
 'use client';
 import { User, AuthContextType } from '../context/authTypes';
 import React, {
@@ -9,7 +11,7 @@ import React, {
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { decodeToken } from '../utils/jwtUtils';
-
+import { loadEnvVariables } from '../configs/centralConfigs';
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
@@ -17,6 +19,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isSheetOpen, setSheetOpen] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -27,30 +30,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                     const decoded = await decodeToken(token);
                     if (decoded) {
                         const role = decoded.role as User['role'];
-                        if (role === 'admin' || role === 'user') {
+                        if (role === 'admin' || role === 'official_agent') {
                             const loggedInUser: User = {
                                 token,
-                                username: decoded.username,
+                                name: decoded.name,
                                 role,
-                                userlogin: decoded.userlogin,
+                                username: decoded.username,
                                 email: decoded.email,
                             };
                             setUser(loggedInUser);
-                            if (!user) {
-                                router.push('/home');
-                            }
+                            router.push('/home');
                         } else {
                             console.error('Role inválida:', role);
                         }
                     } else {
                         console.error('Failed to decode token');
                     }
-                } catch (error: unknown) {
-                    if (error instanceof Error) {
-                        console.error('Error decoding token:', error.message);
-                    } else {
-                        console.error('Unknown error occurred during token decoding');
-                    }
+                } catch (error) {
+                    console.error('Error decoding token:', error);
+                    logout(); // Logout se o token não puder ser decodificado
                 } finally {
                     setLoading(false);
                 }
@@ -60,10 +58,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         };
 
         checkToken();
-    }, [router, user]);
+    }, [router]);
+
     const login = async (username: string, password: string) => {
+        const envVariables = loadEnvVariables(); // Chame a função para obter o objeto
+        console.log("sauihasuuas",envVariables.BACKEND_URL); // Agora você pode acessar BACKEND_URL
+
         try {
-            const response = await fetch('http://localhost:3000/auth/login', {
+            const response = await fetch('http://localhost:3090/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -73,42 +75,46 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(
-                    errorData.message || 'Usuário ou senha inválidos.'
-                );
+                console.log('error', errorData.message);
+
+                setUser(null);
+                throw new Error(errorData.message);
             }
 
             const data = await response.json();
             localStorage.setItem('token', data.access_token);
-
             const decoded = await decodeToken(data.access_token);
+            console.log('Decoded Token:', decoded); // Adicione este log
 
             if (decoded) {
                 const role = decoded.role as User['role'];
-                if (role === 'admin' || role === 'user') {
+                if (role === 'admin' || role === 'official_agent') {
                     const loggedInUser: User = {
                         token: data.access_token,
-                        username: decoded.username,
+                        name: decoded.name,
                         role,
-                        userlogin: decoded.userlogin,
+                        username: decoded.username,
                         email: decoded.email,
                     };
                     setUser(loggedInUser);
                     router.push('/home');
                 } else {
                     console.error('Role inválida:', role);
+                    setUser(null);
                 }
             } else {
                 console.error('Falha ao decodificar o token');
+                setUser(null);
             }
-        } catch (error: unknown) {
-            setUser(null); // Limpar o estado do usuário em caso de erro
-            if (error instanceof Error) {
-                console.error('Login error:', error.message);
+        } catch (error: any) {
+            if (error instanceof TypeError) {
+                console.error('Problema de conexão:', error.message);
+                throw new Error('Problema de conexão');
             } else {
-                console.error('Unknown error occurred during login');
+                console.error('Erro durante o login:', error.message);
+                setUser(null);
+                throw new Error(error.message);
             }
-            throw new Error('Problema de conexão');
         }
     };
 
@@ -118,8 +124,22 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         router.push('/');
     };
 
+    // Funções para abrir e fechar o Sheet
+    const openSheet = () => setSheetOpen(true);
+    const closeSheet = () => setSheetOpen(false);
+
     return (
-        <AuthContext.Provider value={{ user, login, logout, loading }}>
+        <AuthContext.Provider
+            value={{
+                user,
+                login,
+                logout,
+                loading,
+                isSheetOpen,
+                openSheet,
+                closeSheet,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
