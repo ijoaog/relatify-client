@@ -9,6 +9,8 @@
 }
 
 html, body {
+  height: 100%;
+  margin: 0;
   color: var(--foreground);
   background: var(--background);
   font-family: var(--font-saira-sans); 
@@ -20,6 +22,11 @@ html, body {
   font-family: var(--font-saira-sans); 
 }
 
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Garante que o body ocupe a altura total */
+}
 
 @layer base {
   :root {
