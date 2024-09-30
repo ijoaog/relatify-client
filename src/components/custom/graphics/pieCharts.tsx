@@ -1,6 +1,4 @@
 'use client';
-
-import { TrendingUp } from 'lucide-react';
 import { Pie, PieChart } from 'recharts';
 
 import {

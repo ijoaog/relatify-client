@@ -1,10 +1,9 @@
-'use client'; // Certifique-se de que este componente é um Client Component
+'use client';
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext'; // Importa o contexto de autenticação
-import Loader from '../../components/custom/Loader'; // Importa o componente Loader
-import InfoCard from '../../components/custom/cards/InfoCardAndModal'; // Importa o componente InfoCard
+import { useAuth } from '../../context/AuthContext';
+import Loader from '../../components/custom/Loader';
+import InfoCard from '../../components/custom/cards/InfoCardAndModal';
 import { PieChartsComponent } from '../../components/custom/graphics/pieCharts';
-import { LineChartsComponent } from '../../components/custom/graphics/LinesCharts';
 import MonitoringService, { MonitoringLog } from '../../api/MonitoringService';
 
 import {
@@ -16,13 +15,14 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 import DetaineeService, { Detainee } from '@/api/DetaineeService';
+import { toast } from 'sonner';
 
 const HomePage = () => {
     const { user, loading } = useAuth();
     const router = useRouter();
-    const [monitoringLogs, setMonitoringLogs] = useState<MonitoringLog[]>([]); // Estado para armazenar logs de monitoramento
-    const [detaineesInfos, setDetaineesInfos] = useState<Detainee[]>([]); // Estado para armazenar informações dos detentos
-    const [error, setError] = useState<string | null>(null); // Estado para armazenar erros
+    const [monitoringLogs, setMonitoringLogs] = useState<MonitoringLog[]>([]);
+    const [detaineesInfos, setDetaineesInfos] = useState<Detainee[]>([]);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchMonitoringData = async () => {
@@ -31,8 +31,17 @@ const HomePage = () => {
                 const logs = await monitoringService.getAllMonitoring();
                 setMonitoringLogs(logs);
             } catch (err) {
+                toast.error(`Erro no carregamento:`, {
+                    description: 'Erro ao carregar os dados de monitoramento.',
+                    duration: 5000,
+                    position: 'bottom-right',
+                    style: {
+                        borderRadius: '8px',
+                        fontSize: '16px',
+                    },
+                });
                 console.error('Erro ao carregar os dados de monitoramento:', err);
-                setError('Erro ao carregar os dados de monitoramento.'); // Define o erro no estado
+                setError('Erro ao carregar os dados de monitoramento.');
             }
         };
 
@@ -47,10 +56,10 @@ const HomePage = () => {
         };
 
         if (!loading && !user) {
-            router.push('/'); // Redireciona para a página de login se não houver usuário
+            router.push('/');
         } else {
-            fetchDetaineesInfos(); // Chama a função para buscar dados dos detentos
-            fetchMonitoringData(); // Chama a função para buscar dados de monitoramento
+            fetchDetaineesInfos();
+            fetchMonitoringData();
         }
     }, [loading, user, router]);
 
@@ -62,7 +71,6 @@ const HomePage = () => {
         );
     }
 
-    // Exibe mensagem de erro, se houver
     if (error) {
         return (
             <div className='mainContainer flex h-screen items-center justify-center'>
@@ -71,7 +79,6 @@ const HomePage = () => {
         );
     }
 
-    // Exemplo de informações de prisioneiros
     const prisonersInfos = {
         totalRecords: monitoringLogs.length,
         activeBracelets: detaineesInfos.filter(log => log.monitoringStatus === 'em_monitoramento').length,
@@ -87,7 +94,7 @@ const HomePage = () => {
         pendingBracelets: detaineesInfos.filter(log => log.monitoringStatus === 'pendente'),
         recentAlerts: monitoringLogs.filter(log => log.alerts)
     }
-    console.log("ativados",prisonersObj.activeBracelets);
+    console.log(prisonersObj);
     
     return (
         <div className='conteiner mx-auto max-w-7xl px-4 py-8'>

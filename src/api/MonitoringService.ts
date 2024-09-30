@@ -54,9 +54,14 @@ export default class MonitoringService {
             }
 
             return monitoringLogs;
-        } catch (error: any) {
-            console.error('Error fetching data:', error.message);
-            throw error;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('Error fetching data:', error.message);
+                throw new Error(error.message);
+            } else {
+                console.error('An unknown error occurred');
+                throw new Error('An unknown error occurred');
+            }
         }
     }
 
@@ -86,9 +91,14 @@ export default class MonitoringService {
             }
 
             return monitoringLogsLastMonth;
-        } catch (error: any) {
-            console.error('Error fetching data:', error.message);
-            throw error;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error('Error fetching data:', error.message);
+                throw new Error(error.message);
+            } else {
+                console.error('An unknown error occurred');
+                throw new Error('An unknown error occurred');
+            }
         }
     }
 }

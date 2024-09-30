@@ -88,7 +88,6 @@ const RegisterPage = () => {
                 }
             }
 
-            const data = await response.json();
             toast.success(`Usuário criado com sucesso!`, {
                 description: 'Os dados foram enviados para o email fornecido.',
                 duration: 5000,

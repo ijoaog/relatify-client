@@ -1,5 +1,3 @@
-// src/context/AuthContext.tsx
-
 'use client';
 import { User, AuthContextType } from '../context/authTypes';
 import React, {
@@ -8,10 +6,12 @@ import React, {
     useState,
     useEffect,
     ReactNode,
+    useCallback,
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { decodeToken } from '../utils/jwtUtils';
 import { loadEnvVariables } from '../configs/centralConfigs';
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({
@@ -21,6 +21,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const [loading, setLoading] = useState(true);
     const [isSheetOpen, setSheetOpen] = useState(false);
     const router = useRouter();
+
+    const logout = useCallback(() => {
+        localStorage.removeItem('token');
+        setUser(null);
+        router.push('/');
+    }, [router]); // logout é memorizado e não será recriado em cada renderização
 
     useEffect(() => {
         const checkToken = async () => {
@@ -48,7 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                     }
                 } catch (error) {
                     console.error('Error decoding token:', error);
-                    logout(); // Logout se o token não puder ser decodificado
+                    logout(); // Agora chama a função logout memorizada
                 } finally {
                     setLoading(false);
                 }
@@ -58,20 +64,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         };
 
         checkToken();
-    }, [router]);
+    }, [router, logout]); // logout é agora uma dependência válida
 
     const login = async (username: string, password: string) => {
         const envVariables = loadEnvVariables();
 
         try {
-            const response = await fetch(`${envVariables.BACKEND_URL}/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${envVariables.BEARER_TOKEN}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
+            const response = await fetch(
+                `${envVariables.BACKEND_URL}/auth/login`,
+                {
+                    method: 'POST',
+                    headers: {
+                        Authorization: `Bearer ${envVariables.BEARER_TOKEN}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username, password }),
+                }
+            );
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -84,7 +93,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
             const data = await response.json();
             localStorage.setItem('token', data.access_token);
             const decoded = await decodeToken(data.access_token);
-            console.log('Decoded Token:', decoded); // Adicione este log
+            console.log('Decoded Token:', decoded);
 
             if (decoded) {
                 const role = decoded.role as User['role'];
@@ -106,22 +115,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
                 console.error('Falha ao decodificar o token');
                 setUser(null);
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             if (error instanceof TypeError) {
                 console.error('Problema de conexão:', error.message);
                 throw new Error('Problema de conexão');
-            } else {
+            } else if (error instanceof Error) {
                 console.error('Erro durante o login:', error.message);
                 setUser(null);
                 throw new Error(error.message);
+            } else {
+                console.error('Erro desconhecido durante o login');
+                setUser(null);
+                throw new Error('Erro desconhecido');
             }
         }
-    };
-
-    const logout = () => {
-        localStorage.removeItem('token');
-        setUser(null);
-        router.push('/');
     };
 
     // Funções para abrir e fechar o Sheet
