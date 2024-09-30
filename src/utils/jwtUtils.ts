@@ -5,8 +5,8 @@ interface DecodedToken {
     exp: number;
     iat: number;
     sub: string;
+    name: string;
     username: string;
-    userlogin: string;
     email: string;
     role: string; 
 }
