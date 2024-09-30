@@ -68,7 +68,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
     const login = async (username: string, password: string) => {
         const envVariables = loadEnvVariables();
-
+        console.log("eieie",envVariables.BACKEND_URL);
+        
         try {
             const response = await fetch(
                 `${envVariables.BACKEND_URL}/auth/login`,
