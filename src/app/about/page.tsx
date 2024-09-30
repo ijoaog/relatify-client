@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
 import Loader from '../../components/custom/Loader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCopyright } from '@fortawesome/free-solid-svg-icons/FaCopyright';
+import { faRegistered } from '@fortawesome/free-solid-svg-icons';
 
 const AboutPage = () => {
     const { user, loading } = useAuth();
@@ -54,8 +54,8 @@ const AboutPage = () => {
             </div>
             <div className='flex flex-col items-center justify-center p-4'>
                 <p className='text-sm text-gray-500'>
-                    <FontAwesomeIcon icon={faCopyright} /> Todos os direitos
-                    reservados para Relatify.
+                    <FontAwesomeIcon icon={faRegistered} /> reservados para
+                    Relatify.
                 </p>
             </div>
         </div>
