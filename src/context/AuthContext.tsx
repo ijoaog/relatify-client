@@ -61,13 +61,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     }, [router]);
 
     const login = async (username: string, password: string) => {
-        const envVariables = loadEnvVariables(); // Chame a função para obter o objeto
-        console.log("sauihasuuas",envVariables.BACKEND_URL); // Agora você pode acessar BACKEND_URL
+        const envVariables = loadEnvVariables();
 
         try {
-            const response = await fetch('http://localhost:3090/auth/login', {
+            const response = await fetch(`${envVariables.BACKEND_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
+                    'Authorization': `Bearer ${envVariables.BEARER_TOKEN}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ username, password }),

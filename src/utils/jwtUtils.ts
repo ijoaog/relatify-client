@@ -12,8 +12,6 @@ interface DecodedToken {
 }
 
 export const decodeToken = (token: string): Promise<DecodedToken | null> => {
-    console.log('Token recebido:', token);
-    
     return new Promise((resolve) => {
         if (typeof token !== 'string' || token.trim() === '') {
             console.error('Token inválido: deve ser uma string não vazia.');

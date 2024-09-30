@@ -12,7 +12,7 @@ const Sidebar: React.FC = () => {
 
     const navItems = [
         { label: 'Home', href: '/home', role: 'official_agent' },
-        { label: 'Administrador', href: '/admin', role: 'admin' },
+        { label: 'Registrar', href: '/register', role: 'register' },
         { label: 'Relatórios', href: '/reports', role: 'official_agent' },
         { label: 'Sobre', href: '/about', role: 'official_agent' },
     ];
