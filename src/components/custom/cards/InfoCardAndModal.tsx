@@ -17,7 +17,8 @@ interface InfoCardProps {
     count: number;
     details: React.ReactNode;
     icon: IconProp;
-    props?: string
+    props?: string;
+    clickable?: boolean; // Nova prop para controle de clicabilidade
 }
 
 const InfoCard: React.FC<InfoCardProps> = ({
@@ -27,11 +28,14 @@ const InfoCard: React.FC<InfoCardProps> = ({
     details,
     icon,
     props,
+    clickable = true, // Define como true por padrão
 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleOpenModal = () => {
-        setIsModalOpen(true);
+        if (clickable) {
+            setIsModalOpen(true);
+        }
     };
 
     const handleCloseModal = () => {
@@ -41,7 +45,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
     return (
         <>
             <Card
-                className='h-auto w-full transform cursor-pointer p-2 sm:w-auto transition-all duration-300 ease-in-out hover:scale-105 hover:bg-gray-100 hover:shadow-lg'
+                className={`h-full w-full transform p-2 transition-all duration-300 ease-in-out sm:w-auto ${clickable ? 'cursor-pointer hover:scale-105 hover:bg-gray-100 hover:shadow-lg' : ''}`}
                 onClick={handleOpenModal}
             >
                 <CardHeader>
@@ -55,14 +59,15 @@ const InfoCard: React.FC<InfoCardProps> = ({
                             className='flex text-2xl'
                             icon={icon}
                         />{' '}
-                        {/* Usando o ícone dinâmico */}
                     </div>
-                    <CardDescription className='select-none'>
+                    <CardDescription className='flex select-none justify-center'>
                         {description}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className='text-base font-bold sm:text-lg bottom-0'>{count}</p>
+                    <p className='bottom-0 text-base font-bold sm:text-lg'>
+                        {count}
+                    </p>
                 </CardContent>
             </Card>
 

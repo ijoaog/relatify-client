@@ -98,7 +98,6 @@ const RegisterPage = () => {
                 },
             });
         } catch (error) {
-            console.log('Error:', error);
             console.error(error);
             toast.error('Não foi possível criar o usuário: ' + error); // Exibindo toaster de erro
         } finally {

@@ -68,7 +68,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
     const login = async (username: string, password: string) => {
         const envVariables = loadEnvVariables();
-        console.log("eieie",envVariables.BACKEND_URL);
         
         try {
             const response = await fetch(
@@ -85,7 +84,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.log('error', errorData.message);
 
                 setUser(null);
                 throw new Error(errorData.message);
@@ -94,7 +92,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
             const data = await response.json();
             localStorage.setItem('token', data.access_token);
             const decoded = await decodeToken(data.access_token);
-            console.log('Decoded Token:', decoded);
 
             if (decoded) {
                 const role = decoded.role as User['role'];

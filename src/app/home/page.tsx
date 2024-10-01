@@ -15,6 +15,10 @@ import {
 import { useRouter } from 'next/navigation';
 import DetaineeService, { Detainee } from '@/api/DetaineeService';
 import { toast } from 'sonner';
+import { AlertTableLastMonth } from '@/components/custom/tables/AlertsTable';
+import { ActiveTable } from '@/components/custom/tables/ActiveTable';
+import { RemovalTable } from '@/components/custom/tables/RemovalTable';
+import { PendingTable } from '@/components/custom/tables/PendingTable';
 
 const HomePage = () => {
     const { user, loading } = useAuth();
@@ -22,10 +26,13 @@ const HomePage = () => {
     const [monitoringLogs, setMonitoringLogs] = useState<MonitoringLog[]>([]);
     const [detaineesInfos, setDetaineesInfos] = useState<Detainee[]>([]);
     const [error, setError] = useState<string | null>(null);
-
+    const [theLastMonthLogs, setTheLastMonthLogs] = useState<MonitoringLog[]>(
+        []
+    );
     // States for loading each card
     const [loadingMonitoring, setLoadingMonitoring] = useState(true);
     const [loadingDetainees, setLoadingDetainees] = useState(true);
+    const [loadingAlerts, setLoadingAlerts] = useState(true); // Novo estado para AlertTableLastMonth
     const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     useEffect(() => {
@@ -33,7 +40,11 @@ const HomePage = () => {
             try {
                 const monitoringService = new MonitoringService();
                 const logs = await monitoringService.getAllMonitoring();
+                const theLastMonthLogs =
+                    await monitoringService.getAlertsInLastMonth();
+
                 setMonitoringLogs(logs);
+                setTheLastMonthLogs(theLastMonthLogs);
             } catch (err) {
                 toast.error(`Erro no carregamento:`, {
                     description: 'Erro ao carregar os dados de monitoramento.',
@@ -50,7 +61,7 @@ const HomePage = () => {
                 );
                 setError('Erro ao carregar os dados de monitoramento.');
             } finally {
-                setLoadingMonitoring(false); // Set loading to false when data is fetched or on error
+                setLoadingMonitoring(false);
             }
         };
 
@@ -62,18 +73,35 @@ const HomePage = () => {
             } catch (error) {
                 console.error('Erro ao carregar os dados dos detentos:', error);
             } finally {
-                setLoadingDetainees(false); // Set loading to false when data is fetched or on error
+                setLoadingDetainees(false);
+            }
+        };
+
+        const fetchAlerts = async () => {
+            try {
+                const monitoringService = new MonitoringService();
+                const alertsData =
+                    await monitoringService.getAlertsInLastMonth();
+                setTheLastMonthLogs(alertsData);
+            } catch (error) {
+                console.error(
+                    'Erro ao carregar os alertas do último mês:',
+                    error
+                );
+            } finally {
+                setLoadingAlerts(false); // Atualiza o estado de carregamento da tabela de alertas
             }
         };
 
         if (!loading && user) {
             fetchDetaineesInfos();
             fetchMonitoringData();
+            fetchAlerts(); // Chama a nova função para carregar os alertas
         } else if (!loading && !user) {
             router.push('/');
         }
 
-        setIsInitialLoading(false); // Initial loading completed
+        setIsInitialLoading(false);
     }, [loading, user, router]);
 
     if (loading || isInitialLoading) {
@@ -109,19 +137,6 @@ const HomePage = () => {
     return (
         <div className='conteiner mx-auto max-w-7xl px-4 py-8'>
             <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3'>
-                {loadingMonitoring ? (
-                    <Loader />
-                ) : (
-                    <InfoCard
-                        title='Total de registros'
-                        description='Quantidade total de registros ativos no momento.'
-                        count={prisonersInfos.totalRecords}
-                        details={
-                            <p>Detalhes sobre os prisioneiros monitorados...</p>
-                        }
-                        icon={faPeopleLine}
-                    />
-                )}
                 {loadingDetainees ? (
                     <Loader />
                 ) : (
@@ -130,7 +145,13 @@ const HomePage = () => {
                         description='Total de tornozeleiras que estão ativas.'
                         count={prisonersInfos.activeBracelets}
                         details={
-                            <p>Detalhes sobre as tornozeleiras ativas...</p>
+                            <ActiveTable
+                                logs={detaineesInfos.filter(
+                                    (detainee) =>
+                                        detainee.monitoringStatus ===
+                                        'em_monitoramento'
+                                )}
+                            />
                         }
                         props='text-green-500'
                         icon={faBroadcastTower}
@@ -144,10 +165,36 @@ const HomePage = () => {
                         description='Exibir número de tornozeleira removidas (concluído).'
                         count={prisonersInfos.removedBracelets}
                         details={
-                            <p>Detalhes sobre as tornozeleiras removidas...</p>
+                            <RemovalTable
+                                logs={detaineesInfos.filter(
+                                    (detainee) =>
+                                        detainee.monitoringStatus ===
+                                        'concluído'
+                                )}
+                            />
                         }
                         props='text-gray-500'
                         icon={faLinkSlash}
+                    />
+                )}
+
+                {loadingDetainees ? (
+                    <Loader />
+                ) : (
+                    <InfoCard
+                        title='Tornozeleiras Pendentes'
+                        description='Número de tornozeleiras a serem instaladas.'
+                        count={prisonersInfos.pendingBracelets}
+                        details={
+                            <PendingTable
+                                logs={detaineesInfos.filter(
+                                    (detainee) =>
+                                        detainee.monitoringStatus === 'pendente'
+                                )}
+                            />
+                        }
+                        props='text-red-500'
+                        icon={faCircleExclamation}
                     />
                 )}
             </div>
@@ -165,20 +212,24 @@ const HomePage = () => {
                     )}
                 </div>
                 <div className='flex w-full flex-col gap-4 md:w-1/3'>
-                    {loadingDetainees ? (
+                    {loadingMonitoring ? (
                         <Loader />
                     ) : (
                         <InfoCard
-                            title='Tornozeleiras Pendentes'
-                            description='Número de tornozeleiras a serem instaladas.'
-                            count={prisonersInfos.pendingBracelets}
+                            title='Total de registros'
+                            description='Quantidade total de registros ativos no momento.'
+                            count={prisonersInfos.totalRecords}
                             details={
-                                <p>
-                                    Detalhes sobre as tornozeleiras violadas...
-                                </p>
-                            }
-                            props='text-red-500'
-                            icon={faCircleExclamation}
+                                loadingAlerts ? (
+                                    <Loader />
+                                ) : (
+                                    <AlertTableLastMonth
+                                        logs={theLastMonthLogs}
+                                    />
+                                )
+                            } // Adiciona o Loader aqui
+                            icon={faPeopleLine}
+                            clickable={false} // Torna o card não clicável
                         />
                     )}
                     {loadingMonitoring ? (
@@ -189,13 +240,24 @@ const HomePage = () => {
                             description='Alertas recentes que foram gerados.'
                             count={prisonersInfos.recentAlerts}
                             details={
-                                <p>Detalhes sobre os alertas recentes...</p>
-                            }
-                            props='text-yellow-500'
+                                loadingAlerts ? (
+                                    <Loader />
+                                ) : (
+                                    <p>Detalhes sobre os alertas recentes...</p>
+                                )
+                            } // Adiciona o Loader aqui
                             icon={faTriangleExclamation}
+                            clickable={false} // Torna o card não clicável
                         />
                     )}
                 </div>
+            </div>
+            <div className='tableDiv border-1 border-dark mt-2 flex h-[400px] rounded-sm border p-2 shadow-sm'>
+                {loadingAlerts ? (
+                    <Loader />
+                ) : (
+                    <AlertTableLastMonth logs={theLastMonthLogs} />
+                )}
             </div>
         </div>
     );

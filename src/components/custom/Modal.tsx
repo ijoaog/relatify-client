@@ -1,30 +1,26 @@
-// components/custom/Modal.tsx
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 interface ModalProps {
-    onClose: () => void; // Define o tipo para onClose como uma função que não recebe parâmetros e não retorna nada
-    children: React.ReactNode; // Define children como um nó React (pode ser qualquer coisa que pode ser renderizada)
+    onClose: () => void;
+    children: React.ReactNode;
 }
 
 const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
     return (
         <div className='fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50'>
-            <div className='bg-white rounded-lg shadow-lg p-6 max-w-md w-full'>
-                <div className='flex justify-between items-center'>
+            <div className='bg-white rounded-lg shadow-lg p-6 w-[90%] max-h-[90%] flex flex-col relative'>
+                <button 
+                    onClick={onClose} 
+                    className='absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition'>
+                    <FontAwesomeIcon icon={faTimes} size="lg" />
+                </button>
+                <div className='flex justify-center mb-4'>
                     <h2 className='text-lg font-bold'>Detalhes</h2>
-                    <button onClick={onClose} className='text-gray-600 hover:text-gray-900'>
-                        &times;
-                    </button>
                 </div>
-                <div className='mt-4'>
+                <div className='flex-grow'>
                     {children}
-                </div>
-                <div className='mt-6 flex justify-end '>
-                    <button 
-                        onClick={onClose} 
-                        className='bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition'>
-                        Fechar
-                    </button>
                 </div>
             </div>
         </div>

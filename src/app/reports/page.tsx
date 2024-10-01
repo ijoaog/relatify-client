@@ -87,10 +87,6 @@ const RelatoriosPage: React.FC = () => {
             const pdfBlob = await sendJsonFromPDF(filteredReports);
             const fileName = `RelatorioIndividual_${new Date().toISOString().split('T')[0]}.pdf`;
             downloadPDF(pdfBlob, fileName);
-            console.log(
-                'Relatório individual enviado com sucesso para o detento:',
-                detaineeId
-            );
         } catch (error) {
             toast.error(`Erro ao enviar relatório`, {
                 description: 'Erro ao enviar relatório individual!',
@@ -114,7 +110,6 @@ const RelatoriosPage: React.FC = () => {
             const pdfBlob = await sendJsonFromPDF(monitoringReports);
             const fileName = `RelatorioGeral_${new Date().toISOString().split('T')[0]}.pdf`;
             downloadPDF(pdfBlob, fileName);
-            console.log('Relatório geral enviado com sucesso.');
         } catch (error) {
             toast.error(`Erro ao enviar relatório`, {
                 description: 'Erro ao enviar relatório geral!',
