@@ -28,11 +28,11 @@ export function AlertTableLastMonth({ logs }: AlertTableLastMonthProps) {
             <TableHeader>
                 <TableRow>
                     <TableHead>Nome</TableHead>
-                    <TableHead>CPF</TableHead>
+                    <TableHead className='hidden md:flex sm:hidden'>CPF</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Ultima Violação</TableHead>
                     <TableHead>Alerta</TableHead>
-                    <TableHead>Atualizado em</TableHead>
+                    <TableHead className='hidden md:flex sm:hidden'>Atualizado em</TableHead>
                 </TableRow>
             </TableHeader>
             <TableBody>
@@ -48,7 +48,7 @@ export function AlertTableLastMonth({ logs }: AlertTableLastMonthProps) {
                             <TableCell className='font-medium'>
                                 {log.detainee.fullName}
                             </TableCell>
-                            <TableCell>{log.detainee.cpf}</TableCell>
+                            <TableCell className='hidden md:flex sm:hidden'>{log.detainee.cpf}</TableCell>
                             <TableCell>{log.status}</TableCell>
                             <TableCell>
                                 {log.last_violation && log.last_violation.trim() !== ''
@@ -58,7 +58,7 @@ export function AlertTableLastMonth({ logs }: AlertTableLastMonthProps) {
                             <TableCell>
                                 {log.alerts ? log.alerts : 'N/A'}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className='hidden md:flex sm:hidden'>
                                 {new Date(log.updated_at).toLocaleDateString()}
                             </TableCell>
                         </TableRow>
