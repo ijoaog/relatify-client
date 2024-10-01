@@ -26,19 +26,21 @@ const AboutPage = () => {
 
     return (
         <div className='flex h-screen flex-col justify-between'>
-            <h1 className='mb-4 pt-12 text-center text-3xl font-bold md:text-4xl'>
+            <h1 className='mb-4 pt-12 text-center text-2xl font-bold md:text-3xl lg:text-4xl'>
                 Sobre o Relatify
             </h1>
             <div className='flex flex-col items-center justify-center text-center'>
-                <p className='mb-6 text-lg md:text-xl'>
+                <p className='mb-6 text-base md:text-lg lg:text-xl'>
                     O Relatify é um aplicativo inovador que fornece acesso a
                     dados de tornozeleiras eletrônicas e permite a criação de
                     relatórios para finalidades legais. Nossa plataforma visa
                     facilitar a coleta e apresentação de informações essenciais,
                     garantindo eficiência e conformidade legal.
                 </p>
-                <p className='text-lg md:text-xl'>Com o Relatify, você pode:</p>
-                <ul className='mb-6 list-inside list-disc text-lg md:text-xl'>
+                <p className='text-base md:text-lg lg:text-xl'>
+                    Com o Relatify, você pode:
+                </p>
+                <ul className='mb-6 list-inside list-disc text-base md:text-lg lg:text-xl'>
                     <li>
                         Acessar dados em tempo real sobre o uso de tornozeleiras
                         eletrônicas

@@ -1,4 +1,3 @@
-// components/custom/InfoCard.tsx
 import React, { useState } from 'react';
 import {
     Card,
@@ -8,7 +7,7 @@ import {
     CardContent,
 } from '@/components/ui/card';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IconProp } from '@fortawesome/fontawesome-svg-core'; // Importa IconProp
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import Modal from '../Modal';
 
 interface InfoCardProps {
@@ -18,7 +17,7 @@ interface InfoCardProps {
     details: React.ReactNode;
     icon: IconProp;
     props?: string;
-    clickable?: boolean; // Nova prop para controle de clicabilidade
+    clickable?: boolean;
 }
 
 const InfoCard: React.FC<InfoCardProps> = ({
@@ -28,7 +27,7 @@ const InfoCard: React.FC<InfoCardProps> = ({
     details,
     icon,
     props,
-    clickable = true, // Define como true por padrão
+    clickable = true,
 }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -45,27 +44,29 @@ const InfoCard: React.FC<InfoCardProps> = ({
     return (
         <>
             <Card
-                className={`h-full w-full transform p-2 transition-all duration-300 ease-in-out sm:w-auto ${clickable ? 'cursor-pointer hover:scale-105 hover:bg-gray-100 hover:shadow-lg' : ''}`}
+                className={`flex flex-col h-full w-full p-4 transition-all duration-300 ease-in-out sm:w-auto ${
+                    clickable ? 'cursor-pointer hover:scale-105 hover:bg-gray-100 hover:shadow-lg' : ''
+                }`}
                 onClick={handleOpenModal}
             >
                 <CardHeader>
                     <div
-                        className={`flex select-none flex-row items-center justify-between gap-2 ${props}`}
+                        className={`flex items-center justify-between ${props}`}
                     >
-                        <CardTitle className='labelTitle text-lg font-extrabold text-gray-600 sm:text-xl'>
+                        <CardTitle className='text-lg font-extrabold text-gray-600 sm:text-xl'>
                             {title}
                         </CardTitle>
                         <FontAwesomeIcon
-                            className='flex text-2xl'
+                            className='text-2xl'
                             icon={icon}
-                        />{' '}
+                        />
                     </div>
-                    <CardDescription className='flex select-none justify-center'>
+                    <CardDescription className='flex justify-center mt-2'>
                         {description}
                     </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <p className='bottom-0 text-base font-bold sm:text-lg'>
+                <CardContent className='mt-auto'>
+                    <p className='text-base font-bold sm:text-lg'>
                         {count}
                     </p>
                 </CardContent>
