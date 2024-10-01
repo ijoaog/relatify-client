@@ -26,6 +26,7 @@ const HomePage = () => {
     // States for loading each card
     const [loadingMonitoring, setLoadingMonitoring] = useState(true);
     const [loadingDetainees, setLoadingDetainees] = useState(true);
+    const [isInitialLoading, setIsInitialLoading] = useState(true);
 
     useEffect(() => {
         const fetchMonitoringData = async () => {
@@ -33,7 +34,6 @@ const HomePage = () => {
                 const monitoringService = new MonitoringService();
                 const logs = await monitoringService.getAllMonitoring();
                 setMonitoringLogs(logs);
-                setLoadingMonitoring(false); // Set loading to false when data is fetched
             } catch (err) {
                 toast.error(`Erro no carregamento:`, {
                     description: 'Erro ao carregar os dados de monitoramento.',
@@ -49,7 +49,8 @@ const HomePage = () => {
                     err
                 );
                 setError('Erro ao carregar os dados de monitoramento.');
-                setLoadingMonitoring(false); // Also set loading to false on error
+            } finally {
+                setLoadingMonitoring(false); // Set loading to false when data is fetched or on error
             }
         };
 
@@ -58,22 +59,24 @@ const HomePage = () => {
                 const detaineeService = new DetaineeService();
                 const detaineesData = await detaineeService.getAllDetainees();
                 setDetaineesInfos(detaineesData);
-                setLoadingDetainees(false); // Set loading to false when data is fetched
             } catch (error) {
                 console.error('Erro ao carregar os dados dos detentos:', error);
-                setLoadingDetainees(false); // Set loading to false on error
+            } finally {
+                setLoadingDetainees(false); // Set loading to false when data is fetched or on error
             }
         };
 
-        if (!loading && !user) {
-            router.push('/');
-        } else {
+        if (!loading && user) {
             fetchDetaineesInfos();
             fetchMonitoringData();
+        } else if (!loading && !user) {
+            router.push('/');
         }
+
+        setIsInitialLoading(false); // Initial loading completed
     }, [loading, user, router]);
 
-    if (loading) {
+    if (loading || isInitialLoading) {
         return (
             <div className='mainContainer flex h-screen items-center justify-center'>
                 <Loader />
@@ -151,11 +154,15 @@ const HomePage = () => {
 
             <div className='mt-8 flex flex-col gap-6 md:flex-row'>
                 <div className='flex flex-1 flex-col gap-4'>
-                    <PieChartsComponent
-                        activeBracelets={prisonersInfos.activeBracelets}
-                        removedBracelets={prisonersInfos.removedBracelets}
-                        violatedBracelets={prisonersInfos.pendingBracelets}
-                    />
+                    {loadingDetainees ? (
+                        <Loader />
+                    ) : (
+                        <PieChartsComponent
+                            activeBracelets={prisonersInfos.activeBracelets}
+                            removedBracelets={prisonersInfos.removedBracelets}
+                            violatedBracelets={prisonersInfos.pendingBracelets}
+                        />
+                    )}
                 </div>
                 <div className='flex w-full flex-col gap-4 md:w-1/3'>
                     {loadingDetainees ? (

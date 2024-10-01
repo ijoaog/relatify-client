@@ -1,4 +1,5 @@
 import loadEnvVariables from '../configs/centralConfigs';
+import { Detainee } from './DetaineeService';
 
 export interface MonitoringLog {
     detainee_id: number;
@@ -12,6 +13,7 @@ export interface MonitoringLog {
     notes: string;
     created_at: string;
     updated_at: string;
+    detainee: Detainee;
 }
 
 export default class MonitoringService {
