@@ -21,6 +21,7 @@ Siga os passos abaixo para iniciar a aplicação:
 
    ```bash
    Seguir o arquivo .env.example
+   
    ```
 
 4. **Inicie a aplicação**:
